@@ -1,33 +1,44 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import store from "../../store";
+import {
+  fetchValueAction,
+  fetchDelValueAction,
+} from "../../store/actionCreators";
 
 export default function Redux() {
-  console.log(store.getState());
-  const list = store.getState().list;
+  const [state, setState] = useState(store.getState());
   const ref = useRef();
 
-  const action = {
-    type: "fetchValue",
-    payload: ref.current.value,
+  const handleAddText = () => {
+    store.dispatch(fetchValueAction(ref.current.value));
+    ref.current.value = "";
   };
 
-  console.log(111111);
+  const handleDelText = (index) => {
+    store.dispatch(fetchDelValueAction(index));
+  };
+
+  const storeChange = () => {
+    setState(store.getState());
+  };
+  store.subscribe(storeChange);
 
   return (
     <div>
       <input ref={ref} type="text" />
-      <button
-        onClick={() => {
-          console.log(ref.current.value);
-          ref.current.value = "";
-          store.dispatch(action);
-        }}
-      >
-        添加
-      </button>
-      {list.map((item) => {
-        return <div>{item}</div>;
-      })}
+      <button onClick={handleAddText}>添加</button>
+      {state.list.map((item, index) => (
+        <div key={item}>
+          {item}
+          <button
+            onClick={() => {
+              handleDelText(index);
+            }}
+          >
+            删除
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
